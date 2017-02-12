@@ -32,32 +32,39 @@ public class OfferDAO {
     public Offer getOffer(String name) {
         String sqlStatement = "select * from offers where name=?";
 
-        return jdbcTemplateObject.queryForObject(sqlStatement, new Object[]{name}, new RowMapper<Offer>() {
-            public Offer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Offer offer = new Offer();
-                offer.setId(rs.getInt("id"));
-                offer.setName(rs.getString("name"));
-                offer.setEmail(rs.getString("email"));
-                offer.setText(rs.getString("text"));
-
-                return offer;
-            }
-        });
+        return jdbcTemplateObject.queryForObject(sqlStatement, new Object[]{name}, new OfferMapper());
     }
 
     public List<Offer> getOffers() {
         String sqlStatement = "select * from offers";
 
-        return jdbcTemplateObject.query(sqlStatement, new RowMapper<Offer>() {
-            public Offer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Offer offer = new Offer();
-                offer.setId(rs.getInt("id"));
-                offer.setName(rs.getString("name"));
-                offer.setEmail(rs.getString("email"));
-                offer.setText(rs.getString("text"));
+        return jdbcTemplateObject.query(sqlStatement, new OfferMapper());
+    }
 
-                return offer;
-            }
-        });
+    public boolean insert(Offer offer) {
+        String sqlStatement = "insert into offers (name, email, text) values (?,?,?)";
+
+        String name = offer.getName();
+        String email = offer.getEmail();
+        String text = offer.getText();
+
+        return (jdbcTemplateObject.update(sqlStatement, new Object[]{name, email, text}) == 1);
+    }
+
+    public boolean update(Offer offer) {
+        String sqlStatement = "update offers set name=?, email=?, text=? where id=?";
+
+        int id = offer.getId();
+        String name = offer.getName();
+        String email = offer.getEmail();
+        String text = offer.getText();
+
+        return (jdbcTemplateObject.update(sqlStatement, new Object[]{name, email, text, id}) == 1);
+    }
+
+    public boolean delete(int id) {
+        String sqlStatement = "delete from offers where id=?";
+
+        return (jdbcTemplateObject.update(sqlStatement, new Object[]{id})==1);
     }
 }
